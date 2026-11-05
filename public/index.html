@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lost &amp; Found</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif, serif; max-width: 800px; margin: 20px auto; padding: 0 10px; background-color: lightblue;}
+    h1, h2 { margin-bottom: 6px; }
+    section { margin-bottom: 24px; border: 1px solid #ddd; padding: 10px; }
+    input { margin: 2px 4px 2px 0; padding: 4px; }
+    button { padding: 4px 10px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #000; padding: 4px 8px; text-align: left; }
+    th {background-color: #ddd5dd;}
+    #message { font-weight: bold; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+  <h1>Campus Lost &amp; Found</h1>
+  <p id="message"></p>
+
+  <section>
+    <h2>Add Item</h2>
+    <form id="addForm">
+      <input id="item_name" placeholder="Item name" required>
+      <input id="category" placeholder="Category" required>
+      <input id="location_found" placeholder="Location found" required>
+      <input id="date_found" type="date" required>
+      <button type="submit">Add</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Find Item by ID</h2>
+    <input id="searchId" type="number" placeholder="ID">
+    <button id="searchBtn">Search</button>
+    <button id="showAllBtn">Show All</button>
+  </section>
+
+  <section>
+    <h2>Items</h2>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Category</th><th>Location</th><th>Date</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
+  </section>
+
+  <script>
+    const API = "/api/items";
+
+    function showMessage(text) {
+      document.getElementById("message").textContent = text;
+    }
+
+    function render(items) {
+      const body = document.getElementById("itemsBody");
+      body.innerHTML = "";
+      items.forEach((item) => {
+        const row = document.createElement("tr");
+        const cells = [item.id, item.item_name, item.category, item.location_found, item.date_found, item.status];
+        cells.forEach((value) => {
+          const td = document.createElement("td");
+          td.textContent = value;
+          row.appendChild(td);
+        });
+        const actionTd = document.createElement("td");
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.addEventListener("click", () => deleteItem(item.id));
+        actionTd.appendChild(delBtn);
+        row.appendChild(actionTd);
+        body.appendChild(row);
+      });
+    }
+
+    async function loadAll() {
+      const res = await fetch(API);
+      render(await res.json());
+    }
+
+    async function searchById() {
+      const id = document.getElementById("searchId").value;
+      if (!id) return showMessage("Enter an ID to search.");
+      const res = await fetch(`${API}/${id}`);
+      const data = await res.json();
+      if (!res.ok) {
+        render([]);
+        return showMessage(data.error);
+      }
+      showMessage("");
+      render([data]);
+    }
+
+    async function addItem(event) {
+      event.preventDefault();
+      const payload = {
+        item_name: document.getElementById("item_name").value,
+        category: document.getElementById("category").value,
+        location_found: document.getElementById("location_found").value,
+        date_found: document.getElementById("date_found").value,
+      };
+      const res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) return showMessage(data.error);
+      showMessage("Item added.");
+      event.target.reset();
+      loadAll();
+    }
+
+    async function deleteItem(id) {
+
+        if (!confirm("Are you sure you want to delete this item?")) {
+        return;
+    }
+      const res = await fetch(`${API}/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      showMessage(res.ok ? data.message : data.error);
+      loadAll();
+    }
+
+    document.getElementById("addForm").addEventListener("submit", addItem);
+    document.getElementById("searchBtn").addEventListener("click", searchById);
+    document.getElementById("showAllBtn").addEventListener("click", () => { showMessage(""); loadAll(); });
+    loadAll();
+  </script>
+</body>
+</html>

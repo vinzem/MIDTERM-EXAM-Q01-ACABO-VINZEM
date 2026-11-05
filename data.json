@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "item_name": "Black Umbrella with white handle",
+    "category": "Accessories",
+    "location_found": "Library Entrance",
+    "date_found": "2026-10-28",
+    "claimed": true
+  },
+  {
+    "id": 2,
+    "item_name": "Blue Water Bottle with surf board",
+    "category": "Personal Items",
+    "location_found": "Gymnasium",
+    "date_found": "2026-11-02",
+    "claimed": false
+  },
+  {
+    "id": 3,
+    "item_name": "Bioligical Calculator",
+    "category": "Electronics",
+    "location_found": "Engineering Building Room 4369694",
+    "date_found": "2026-11-04",
+    "claimed": false
+  },
+  {
+  "id": 4,
+  "item_name": "Iro",
+  "category": "Live animal",
+  "location_found": "Comfort Room",
+  "date_found": "2026-11-05",
+  "claimed": false
+}
+]
